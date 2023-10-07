@@ -1565,6 +1565,11 @@ module Parser
       # given start offset and end offset. If the needle is not found, it
       # returns nil.
       def srange_find(start_offset, end_offset, tokens)
+        syntax_early_end = ["#", "=begin"].map { |token|
+          source_buffer.source.byteslice(start_offset...end_offset).index(token)
+        }.compact.min
+
+        end_offset = [end_offset, syntax_early_end || Float::INFINITY].min
         tokens.find do |token|
           next unless (index = source_buffer.source.byteslice(start_offset...end_offset).index(token))
           offset = start_offset + index
